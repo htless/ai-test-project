@@ -11,19 +11,20 @@ def storeRecord(productionOrder):
         productionOrder=productionOrder
     ).execute()
 
-def allocateMachine(productionOrder, quantity):
+def allocateMachine(productionOrder):
     component = productionOrder.component
     
     print('\n------------------------')
+    print(f'Ordem de produção {productionOrder.id} - Quantidade: {productionOrder.quantity}');
+    
     print(f'Componente: {component.name}');
-    print(f'Quantidade: {quantity}');
     print(f'Temperatura: {component.temperature}');
     print(f'Pressão: {component.pressure}');
     print(f'Velocidade {component.speed}')
+    print(f'Quantidade: {component.quantity}');
     
     machine = Machine.get(Machine.status == MachineStatus.FREE.value)
-    machine.status = MachineStatus.IN_USE.value
-    machine.save()
+    machine.update(status=MachineStatus.IN_USE.value)
     
     print('\nMáquina configurada e pronta')
     
@@ -34,43 +35,51 @@ def allocateMachine(productionOrder, quantity):
         machine=machine
     ).execute()
     
-    print('Ordem de produção criada\n')
+    print('Ordem de produção atualizada\n')
     
     storeRecord(productionOrder)
 
-    print('Ordem de produção em processamento')
+    print('Ordem de produção em processamento. Status: Produzindo')
     print(f'Máquina {machine.id} ocupada')
     print('------------------------')
         
 def nextStep(productionOrder):
     productionOrder.update(step=ProductionOrderStep.FINAL.value).execute()
     storeRecord(productionOrder)
+    print(f'\nOrdem de produção {productionOrder.id} foi para etapa final de produção. Status: Produzindo')
     
 def finish(productionOrder):
     productionOrder.update(status=ProductionOrderStatus.PRODUCED.value).execute()
     storeRecord(productionOrder)
+    print(f'\nOrdem de produção {productionOrder.id} finalizada. Status: Produzida')
 
 def listProductionOrders():
+    print(f"\nListagem de ordens de produção:")
     for productionOrder in ProductionOrder.select():
         print(f'Ordem de produção {productionOrder.id} - '\
             f'Quantidade: {productionOrder.quantity} - '\
-            f'Componente: {productionOrder.component.name}')
+            f'Componente: {productionOrder.component.name} - '\
+            f'Status: {ProductionOrderStatus(productionOrder.status)}')
         
 def listComponents():
+    print(f"\nListagem de componentes:")
     for component in Component.select():
         print(f'Componente: {component.id} - '\
             f'Quantidade necesária: {component.quantity}')
    
 def createProductionOrder():
-    code = input('Insira o código para cadastro: ')
+    code = input('\nInsira o código para cadastro: ')
     status = ProductionOrderStatus.WAITING.value
     step = ProductionOrderStep.FIRST.value
     quantity = input('Insira a quantidade: ')
-    ProductionOrder.create(
-        id=code, 
+    componentId = input('Insira o código do componente: ')
+    component = Component.get(Component.id == componentId)
+    productionOrder = ProductionOrder.create(id=code, 
         quantity=quantity, 
         status=status, 
-        step=step)
+        step=step,
+        component=component)
+    print(f"\nOrdem de produção criada com o id: {productionOrder.id}")
         
 def createComponent():
     name = input('Insira o nome do componente: ')
@@ -78,32 +87,30 @@ def createComponent():
     temperature = input('Insira a temperatura: ')
     pressure = input('Insira a pressão: ')
     speed = input('Insira a velocidade: ')
-    ProductionOrder.create(
-        name=name, 
+    component = Component.create(name=name, 
         quantity=quantity,
         temperature=temperature,
         pressure=pressure,
         speed=speed)
+    print(f"\nComponente criado com o id: {component.id}")
     
 def readBarCode():
     try:
-        readline = input("Insira a leitura do código de barras: \n");
-        productionOrderId = int(readline[0]);
-        quantity = int(readline[0:2]);
+        productionOrderId = input("Insira a leitura do código de barras: ")
         
         productionOrder = ProductionOrder.get(ProductionOrder.id == productionOrderId)
 
         if(productionOrder.status == ProductionOrderStatus.WAITING.value):
-            allocateMachine(productionOrder, quantity)
-        elif(productionOrder.step == ProductionOrderStep.FIRST):
+            allocateMachine(productionOrder)
+        elif(productionOrder.step == ProductionOrderStep.FIRST.value):
             nextStep(productionOrder)   
         else:
-            finish()     
+            finish(productionOrder)     
     except IndexError:
         print('Código de barras inválido') 
     
 def menu():
-    print('Manufacturing Execution System')
+    print('\n Manufacturing Execution System\n')
     print('1 - Cadastrar Ordem de Produção')
     print('2 - Cadastrar Componente')
     print('3 - Listar Ordens de Produção')
@@ -122,13 +129,16 @@ def execute(choice):
         listComponents()
     elif(choice == 5):
         readBarCode()
+    elif(choice == 0):
+        print('\nEncerrando sistema')
     else:
         print('Opção não encontrada')
 
 def run():
+    choice = 1
     while choice != 0:
         menu()
-        choice = int(input('Digite uma opção: '))
+        choice = int(input('\nDigite uma opção: '))
         execute(choice)
 
 if __name__ == '__main__':
