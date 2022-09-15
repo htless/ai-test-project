@@ -22,24 +22,29 @@ def allocateMachine(productionOrder):
     print(f'Velocidade {component.speed}')
     print(f'Quantidade: {component.quantity}');
     
-    machine = Machine.get(Machine.status == MachineStatus.FREE.value and Machine.id != 3)
-    machine.update(status=MachineStatus.IN_USE.value).execute()
+    try:
+        machine = Machine.get(Machine.status == MachineStatus.FREE.value, Machine.id != 3)
+        machine.status = MachineStatus.IN_USE.value
+        machine.save()
+        
+        print('\nMáquina configurada e pronta')
     
-    print('\nMáquina configurada e pronta')
-    
-    productionOrder.update(
-        start=datetime.datetime.now(),
-        status=ProductionOrderStatus.PRODUCING.value,
-        step=ProductionOrderStep.FIRST.value,
-        machine=machine).execute()
-    
-    print('Ordem de produção atualizada\n')
-    
-    storeRecord(productionOrder)
+        productionOrder.start = datetime.datetime.now()
+        productionOrder.status = ProductionOrderStatus.PRODUCING.value
+        productionOrder.step = ProductionOrderStep.FIRST.value
+        productionOrder.machine = machine
+        
+        productionOrder.save()
+        
+        print('Ordem de produção atualizada\n')
+        
+        storeRecord(productionOrder)
 
-    print('Ordem de produção em processamento. Status: Produzindo')
-    print(f'Máquina {machine.id} ocupada')
-    print('------------------------')
+        print('Ordem de produção em processamento. Status: Produzindo')
+        print(f'Máquina {machine.id} ocupada')
+        print('------------------------')
+    except DoesNotExist:
+        print('\nNenhuma máquina liberada no momento')
     
 def lastMachineBeingUsed():
     machine = Machine.get(Machine.id == 3)

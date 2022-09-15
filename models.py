@@ -30,8 +30,8 @@ class Record(BaseModel):
     time = DateTimeField(default=datetime.datetime.now)
     status = IntegerField()
     step = IntegerField()
-    machine = ForeignKeyField(Machine)
-    productionOrder = ForeignKeyField(ProductionOrder)
+    machine = ForeignKeyField(Machine, null=True)
+    productionOrder = ForeignKeyField(ProductionOrder, null=True)
     
 def create_tables():
     with db:
