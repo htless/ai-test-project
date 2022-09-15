@@ -22,13 +22,13 @@ class Component(BaseModel):
     speed = IntegerField(null=True)
     
 class ProductionOrder(BaseModel):
-    quantity = IntegerField()
+    quantity = IntegerField(null=True)
     start = DateTimeField(default=datetime.datetime.now)
     end = DateTimeField(null=True)
     status = IntegerField()
     step = IntegerField()
-    machine = ForeignKeyField(Machine)
-    component = ForeignKeyField(Component)
+    machine = ForeignKeyField(Machine, null=True)
+    component = ForeignKeyField(Component, null=True)
     
 class Record(BaseModel):
     time = DateTimeField(default=datetime.datetime.now)

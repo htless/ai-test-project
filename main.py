@@ -1,3 +1,4 @@
+from asyncore import read
 import datetime
 from models import Machine, ProductionOrder, Component, Record, create_tables
 from enums import MachineStatus, ProductionOrderStatus, ProductionOrderStep
@@ -60,7 +61,13 @@ def listComponents():
     for component in Component.select():
         print(f'Componente: {component.id} - '\
             f'Quantidade necesária: {component.quantity}')
-        
+   
+def createProductionOrder():
+    code = input('Insira o código para cadastro: ')
+    status = ProductionOrderStatus.WAITING.value
+    step = ProductionOrderStep.FIRST.value
+    quantity = input('Insira a quantidade: ')
+    ProductionOrder.create(id=code, quantity=quantity, status=status, step=step)
         
 def readBarCode():
     try:
@@ -88,10 +95,26 @@ def menu():
     print('5 - Ler Ordem de Produção')
     print('0 - Sair')
 
+def execute(choice):
+    if(choice == 1):
+        createProductionOrder()
+    elif(choice == 2):
+        createComponent()
+    elif(choice == 3):
+        listProductionOrders()
+    elif(choice == 4):
+        listComponents()
+    elif(choice == 5):
+        readBarCode()
+    else:
+        print('Opção não encontrada')
+
+
 def run():
     while choice != 0:
         menu()
         choice = int(input('Digite uma opção: '))
+        execute(choice)
 
 if __name__ == '__main__':
     create_tables();
