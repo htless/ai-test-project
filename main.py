@@ -1,6 +1,6 @@
 import datetime
-from models import Machine, ProductionOrder, Component, Record, create_machines, create_tables
-from enums import MachineStatus, ProductionOrderStatus, ProductionOrderStep
+from models import *
+from enums import *
 
 def storeRecord(productionOrder):
     Record.insert(
