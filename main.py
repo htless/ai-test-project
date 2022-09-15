@@ -40,18 +40,37 @@ def allocateMachine(productionOrder):
     print('Ordem de produção em processamento. Status: Produzindo')
     print(f'Máquina {machine.id} ocupada')
     print('------------------------')
+    
+def lastMachineBeingUsed():
+    machine = Machine.get(Machine.id == 3)
+    if(machine.status == MachineStatus.IN_USE.value):
+        return True
+    return False
         
 def nextStep(productionOrder):
-    productionOrder.machine.update(status=MachineStatus.FREE.value)
+    if(lastMachineBeingUsed):
+        print('\n A máquina de finalização está sendo utilizada')
+        return
+    
+    productionOrder.machine.update(status=MachineStatus.FREE.value).execute()
     productionOrder.update(step=ProductionOrderStep.FINAL.value, machine=3).execute()
+    productionOrder.machine.update(status=MachineStatus.IN_USE.value).execute()
+    
     storeRecord(productionOrder)
+    
     print(f'\nOrdem de produção {productionOrder.id} foi para etapa final de produção. Status: Produzindo')
     
 def finish(productionOrder):
-    productionOrder.update(status=ProductionOrderStatus.PRODUCED.value).execute()
-    storeRecord(productionOrder)
+    productionOrder.update(
+        status=ProductionOrderStatus.PRODUCED.value,
+        end=datetime.datetime.now()
+    ).execute()
+    
     print(f'\nOrdem de produção {productionOrder.id} finalizada. Status: Produzida')
+    
     productionOrder.machine.update(status=MachineStatus.FREE.value)
+    
+    storeRecord(productionOrder)
 
 def listProductionOrders():
     print(f"\nListagem de ordens de produção:")
@@ -74,11 +93,13 @@ def createProductionOrder():
     quantity = input('Insira a quantidade: ')
     componentId = input('Insira o código do componente: ')
     component = Component.get(Component.id == componentId)
+    
     productionOrder = ProductionOrder.create(id=code, 
         quantity=quantity, 
         status=status, 
         step=step,
         component=component)
+    
     print(f"\nOrdem de produção criada com o id: {productionOrder.id}. Status: EM FILA")
         
 def createComponent():
@@ -87,11 +108,13 @@ def createComponent():
     temperature = input('Insira a temperatura: ')
     pressure = input('Insira a pressão: ')
     speed = input('Insira a velocidade: ')
+    
     component = Component.create(name=name, 
         quantity=quantity,
         temperature=temperature,
         pressure=pressure,
         speed=speed)
+    
     print(f"\nComponente criado com o id: {component.id}")
     
 def readBarCode():

@@ -38,7 +38,6 @@ def create_tables():
         db.create_tables([Machine, ProductionOrder, Component, Record])
 
 def create_machines():
-    machines = Machine.select()
-    if(machines.count == 0):
+    if(Machine.select().count() == 0):
         machines = [{ 'status': 0 }, { 'status': 0 }, { 'status': 0 }]
         Machine.insert_many(machines).execute()
