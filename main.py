@@ -63,8 +63,7 @@ def nextStep(productionOrder):
 def finish(productionOrder):
     productionOrder.update(
         status=ProductionOrderStatus.PRODUCED.value,
-        end=datetime.datetime.now()
-    ).execute()
+        end=datetime.datetime.now()).execute()
     
     print(f'\nOrdem de produção {productionOrder.id} finalizada. Status: Produzida')
     
