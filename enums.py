@@ -5,9 +5,9 @@ class MachineStatus(Enum):
     IN_USE = 1
 
 class ProductionOrderStatus(Enum):
-    WAITING = 1
-    PRODUCING = 2
-    PRODUCED = 3
+    WAITING = 0
+    PRODUCING = 1
+    PRODUCED = 2
     
 class ProductionOrderStep(Enum):
     FIRST = 0

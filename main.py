@@ -52,7 +52,6 @@ def setMachineStatus(machine, status):
     
 def lastMachineBeingUsed():
     machine = Machine.get(Machine.id == 3)
-    print(machine, machine.status)
     if(machine.status == MachineStatus.IN_USE.value):
         return True
     return False
