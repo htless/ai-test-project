@@ -6,9 +6,8 @@ class MachineStatus(Enum):
 
 class ProductionOrderStatus(Enum):
     WAITING = 1
-    PROCESSING = 2
-    PRODUCING = 3
-    PRODUCED = 4
+    PRODUCING = 2
+    PRODUCED = 3
     
 class ProductionOrderStep(Enum):
     FIRST = 0

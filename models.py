@@ -3,10 +3,6 @@ from peewee import *
 
 db = SqliteDatabase('ai.sqlite')
 
-def create_tables():
-    with db:
-        db.create_tables([Machine, ProductionOrder, Component, Record])
-
 class BaseModel(Model):
     class Meta:
         database = db
@@ -36,3 +32,13 @@ class Record(BaseModel):
     step = IntegerField()
     machine = ForeignKeyField(Machine)
     productionOrder = ForeignKeyField(ProductionOrder)
+    
+def create_tables():
+    with db:
+        db.create_tables([Machine, ProductionOrder, Component, Record])
+
+def create_machines():
+    machines = Machine.select()
+    if(machines.count == 0):
+        machines = [{ 'status': 0 }, { 'status': 0 }, { 'status': 0 }]
+        Machine.insert_many(machines).execute()
