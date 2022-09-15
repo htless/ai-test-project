@@ -1,7 +1,4 @@
-from dataclasses import dataclass
 import datetime
-from email.header import make_header
-from platform import machine
 from peewee import *
 
 db = SqliteDatabase('ai.sqlite')
@@ -16,15 +13,16 @@ class BaseModel(Model):
         
 class Machine(BaseModel):
     status = IntegerField(default=0)
-    temperature = IntegerField(null=True)
-    pressure = IntegerField(null=True)
-    speed = IntegerField(null=True)
     
 class Component(BaseModel):
     name = CharField()
     quantity = IntegerField()
+    temperature = IntegerField(null=True)
+    pressure = IntegerField(null=True)
+    speed = IntegerField(null=True)
     
 class ProductionOrder(BaseModel):
+    quantity = IntegerField()
     start = DateTimeField(default=datetime.datetime.now)
     end = DateTimeField(null=True)
     status = IntegerField()

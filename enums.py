@@ -9,3 +9,7 @@ class ProductionOrderStatus(Enum):
     PROCESSING = 2
     PRODUCING = 3
     PRODUCED = 4
+    
+class ProductionOrderStep(Enum):
+    FIRST = 0
+    FINAL = 1
