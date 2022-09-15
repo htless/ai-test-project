@@ -59,7 +59,7 @@ def listProductionOrders():
         print(f'Ordem de produção {productionOrder.id} - '\
             f'Quantidade: {productionOrder.quantity} - '\
             f'Componente: {productionOrder.component.name} - '\
-            f'Status: {ProductionOrderStatus(productionOrder.status)}')
+            f'Status: {ProductionOrderStatus(productionOrder.status).name}')
         
 def listComponents():
     print(f"\nListagem de componentes:")
@@ -79,7 +79,7 @@ def createProductionOrder():
         status=status, 
         step=step,
         component=component)
-    print(f"\nOrdem de produção criada com o id: {productionOrder.id}")
+    print(f"\nOrdem de produção criada com o id: {productionOrder.id}. Status: EM FILA")
         
 def createComponent():
     name = input('Insira o nome do componente: ')
