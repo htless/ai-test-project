@@ -1,4 +1,7 @@
 import datetime
+from http.client import PROCESSING
+from itertools import starmap
+from multiprocessing.sharedctypes import Value
 from models import Machine, ProductionOrder, Record, create_tables
 from enums import MachineStatus, ProductionOrderStatus
 
@@ -25,45 +28,41 @@ def run():
         print(f'Pressão: {pressure}');
         print(f'Velocidade {speed}')
         
-        machine = Machine.get(Machine.status == MachineStatus.FREE);
+        machine = Machine.get(Machine.status == MachineStatus.FREE.value);
         
         machine.temperature = temperature
         machine.pressure = pressure
         machine.speed = speed
-        machine.status = MachineStatus.IN_USE
+        machine.status = MachineStatus.IN_USE.value
         
         machine.save()
         
-        print('\nMáquina configurada e pronta\n')
+        print('\nMáquina configurada e pronta')
         
-        productionOrder = {
-            'component': components[id],
-            'quantity': quantity,
-            'start': datetime.datetime.now(),
-            'status': ProductionOrderStatus.PROCESSING,
-            'step': 0,
-            'machine': machine
-        }
+        productionOrder = ProductionOrder.create(
+            component=components[id],
+            quantity=quantity,
+            start=datetime.datetime.now(),
+            status=ProductionOrderStatus.PROCESSING.value,
+            step=0,
+            machine=machine
+        )
+        
+        print('Ordem de produção criada\n')
+        
+        Record.insert(
+            time=datetime.datetime.now(),
+            status=productionOrder.status,
+            machine=machine,
+            productionOrder=productionOrder
+        ).execute()
 
-        productionOrder = ProductionOrder.create(productionOrder)
-        
-        record = {
-            'time': datetime.datetime.now(),
-            'status': productionOrder.status,
-            'machine': machine,
-            'productionOrder': productionOrder
-        }
-        
-        Record.insert(record).execute()
-
-        print('\n Ordem de produção em processamento')
+        print('Ordem de produção em processamento')
         print(f'Máquina {machine.id} ocupada')
         print('------------------------')
         
     except IndexError:
         print('Código de barras inválido')
-    except: 
-        print('Erro iniciar operação');
 
 if __name__ == '__main__':
     create_tables();
