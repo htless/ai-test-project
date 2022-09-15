@@ -33,5 +33,6 @@ class ProductionOrder(BaseModel):
 class Record(BaseModel):
     time = DateTimeField(default=datetime.datetime.now)
     status = IntegerField()
+    step = IntegerField()
     machine = ForeignKeyField(Machine)
     productionOrder = ForeignKeyField(ProductionOrder)
