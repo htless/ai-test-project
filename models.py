@@ -1,6 +1,11 @@
+from dataclasses import dataclass
 from peewee import *
 
 db = SqliteDatabase('ai.db')
+
+def create_tables():
+    with db:
+        db.create_tables([Machine, ProductionOrder, Registry])
 
 class BaseModel(Model):
     class Meta:
@@ -20,7 +25,7 @@ class ProductionOrder(BaseModel):
     status = IntegerField()
     step = IntegerField()
     
-class Registry(BaseModel):
+class Record(BaseModel):
     time = DateTimeField()
     status = IntegerField()
     machine = ForeignKeyField(Machine)
