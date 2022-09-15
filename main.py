@@ -1,4 +1,3 @@
-from asyncore import read
 import datetime
 from models import Machine, ProductionOrder, Component, Record, create_tables
 from enums import MachineStatus, ProductionOrderStatus, ProductionOrderStep
@@ -67,8 +66,25 @@ def createProductionOrder():
     status = ProductionOrderStatus.WAITING.value
     step = ProductionOrderStep.FIRST.value
     quantity = input('Insira a quantidade: ')
-    ProductionOrder.create(id=code, quantity=quantity, status=status, step=step)
+    ProductionOrder.create(
+        id=code, 
+        quantity=quantity, 
+        status=status, 
+        step=step)
         
+def createComponent():
+    name = input('Insira o nome do componente: ')
+    quantity = input('Insira a quantidade: ')
+    temperature = input('Insira a temperatura: ')
+    pressure = input('Insira a pressão: ')
+    speed = input('Insira a velocidade: ')
+    ProductionOrder.create(
+        name=name, 
+        quantity=quantity,
+        temperature=temperature,
+        pressure=pressure,
+        speed=speed)
+    
 def readBarCode():
     try:
         readline = input("Insira a leitura do código de barras: \n");
@@ -108,7 +124,6 @@ def execute(choice):
         readBarCode()
     else:
         print('Opção não encontrada')
-
 
 def run():
     while choice != 0:
