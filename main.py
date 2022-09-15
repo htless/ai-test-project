@@ -1,15 +1,6 @@
 import datetime
-from http.client import PROCESSING
-from itertools import starmap
-from multiprocessing.sharedctypes import Value
-from models import Machine, ProductionOrder, Record, create_tables
+from models import Machine, ProductionOrder, Component, Record, create_tables
 from enums import MachineStatus, ProductionOrderStatus
-
-components = [
-  'Aço',
-  'Borracha',
-  'Batata'
-];
 
 def run():
     readline = input("Insira a leitura do código de barras: \n");
@@ -21,14 +12,16 @@ def run():
         pressure = int(readline[4:6])
         speed = int(readline[6:8]) 
         
+        component = Component.get(Component.id == id)
+        
         print('\n------------------------')
-        print(f'Componente: {components[id]}');
+        print(f'Componente: {component.name}');
         print(f'Quantidade: {quantity}');
         print(f'Temperatura: {temperature}');
         print(f'Pressão: {pressure}');
         print(f'Velocidade {speed}')
         
-        machine = Machine.get(Machine.status == MachineStatus.FREE.value);
+        machine = Machine.get(Machine.status == MachineStatus.FREE.value)
         
         machine.temperature = temperature
         machine.pressure = pressure
@@ -40,11 +33,10 @@ def run():
         print('\nMáquina configurada e pronta')
         
         productionOrder = ProductionOrder.create(
-            component=components[id],
-            quantity=quantity,
             start=datetime.datetime.now(),
             status=ProductionOrderStatus.PROCESSING.value,
             step=0,
+            component=component,
             machine=machine
         )
         

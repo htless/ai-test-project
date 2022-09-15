@@ -1,12 +1,14 @@
 from dataclasses import dataclass
 import datetime
+from email.header import make_header
+from platform import machine
 from peewee import *
 
 db = SqliteDatabase('ai.sqlite')
 
 def create_tables():
     with db:
-        db.create_tables([Machine, ProductionOrder, Record])
+        db.create_tables([Machine, ProductionOrder, Component, Record])
 
 class BaseModel(Model):
     class Meta:
@@ -18,13 +20,17 @@ class Machine(BaseModel):
     pressure = IntegerField(null=True)
     speed = IntegerField(null=True)
     
-class ProductionOrder(BaseModel):
-    component = CharField()
+class Component(BaseModel):
+    name = CharField()
     quantity = IntegerField()
+    
+class ProductionOrder(BaseModel):
     start = DateTimeField(default=datetime.datetime.now)
     end = DateTimeField(null=True)
     status = IntegerField()
     step = IntegerField()
+    machine = ForeignKeyField(Machine)
+    component = ForeignKeyField(Component)
     
 class Record(BaseModel):
     time = DateTimeField(default=datetime.datetime.now)
