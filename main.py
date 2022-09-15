@@ -14,13 +14,13 @@ def allocateMachine(productionOrder):
     component = productionOrder.component
     
     print('\n------------------------')
-    print(f'Ordem de produção {productionOrder.id} - Quantidade: {productionOrder.quantity}');
+    print(f'Ordem de produção {productionOrder.id} - Quantidade: {productionOrder.quantity}')
     
-    print(f'Componente: {component.name}');
-    print(f'Temperatura: {component.temperature}');
-    print(f'Pressão: {component.pressure}');
+    print(f'Componente: {component.name}')
+    print(f'Temperatura: {component.temperature}')
+    print(f'Pressão: {component.pressure}')
     print(f'Velocidade {component.speed}')
-    print(f'Quantidade: {component.quantity}');
+    print(f'Quantidade: {component.quantity}')
     
     try:
         machine = Machine.get(Machine.status == MachineStatus.FREE.value, Machine.id != 3)
@@ -45,34 +45,43 @@ def allocateMachine(productionOrder):
         print('------------------------')
     except DoesNotExist:
         print('\nNenhuma máquina liberada no momento')
+
+def setMachineStatus(machine, status):
+    machine.status = status.value
+    machine.save()
     
 def lastMachineBeingUsed():
     machine = Machine.get(Machine.id == 3)
+    print(machine, machine.status)
     if(machine.status == MachineStatus.IN_USE.value):
         return True
     return False
         
 def nextStep(productionOrder):
-    if(lastMachineBeingUsed):
-        print('\n A máquina de finalização está sendo utilizada')
+    if(lastMachineBeingUsed()):
+        print('\nA máquina de finalização está sendo utilizada')
         return
     
-    productionOrder.machine.update(status=MachineStatus.FREE.value).execute()
-    productionOrder.update(step=ProductionOrderStep.FINAL.value, machine=3).execute()
-    productionOrder.machine.update(status=MachineStatus.IN_USE.value).execute()
+    setMachineStatus(productionOrder.machine, MachineStatus.FREE)
     
+    productionOrder.step = ProductionOrderStep.FINAL.value
+    productionOrder.machine = 3
+    productionOrder.save()
+    
+    setMachineStatus(productionOrder.machine, MachineStatus.IN_USE)
+
     storeRecord(productionOrder)
     
     print(f'\nOrdem de produção {productionOrder.id} foi para etapa final de produção. Status: Produzindo')
     
 def finish(productionOrder):
-    productionOrder.update(
-        status=ProductionOrderStatus.PRODUCED.value,
-        end=datetime.datetime.now()).execute()
+    productionOrder.status = ProductionOrderStatus.PRODUCED.value
+    productionOrder.end = datetime.datetime.now()
+    productionOrder.save()
     
     print(f'\nOrdem de produção {productionOrder.id} finalizada. Status: Produzida')
     
-    productionOrder.machine.update(status=MachineStatus.FREE.value)
+    setMachineStatus(productionOrder.machine, MachineStatus.FREE)
     
     storeRecord(productionOrder)
 
